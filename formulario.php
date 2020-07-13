@@ -144,6 +144,7 @@ add_shortcode('formulario_aspirante', 'formulario_Aspirante');
                 'nivel_js' => $nivel_js,
                 'aceptacion' => $aceptacion,
                 'ip_origen' => $ip_origen,
+            
                 'created_at' => $created_at,
             )
         );
@@ -244,34 +245,59 @@ function formulario_Aspirante_menu()
  */
 function formulario_Aspirante_admin()
 {
+    wp_enqueue_style('css_aspirante', plugins_url('formulario.css', __FILE__));
     global $wpdb;
     $tabla_aspirantes = $wpdb->prefix . 'aspirante';
     $consulta = "SELECT * FROM $tabla_aspirantes";
-    if(isset($_POST["nombre"])){
+    if(isset($_POST["nombre_buscar"])){
         echo "Recibiendo datos";
-        $nombre= $_POST["nombre"];
+        $nombre= $_POST["nombre_buscar"];
         $consulta= "SELECT * FROM $tabla_aspirantes where nombre like '%$nombre%'";
       
+    }
+    if(isset($_POST["nombre"])){
+        $tabla_aspirantes = $wpdb->prefix . 'aspirante'; 
+        $nombre = sanitize_text_field($_POST['nombre']);
+        $correo = $_POST['correo'];
+        $nivel_html = (int)$_POST['nivel_html'];
+        $nivel_css = (int)$_POST['nivel_css'];
+        $nivel_js = (int)$_POST['nivel_js'];
+              $created_at = date('Y-m-d H:i:s');
+              $wpdb->insert(
+            $tabla_aspirantes,
+            array(
+                'nombre' => $nombre,
+                'correo' => $correo,
+                'nivel_html' => $nivel_html,
+                'nivel_css' => $nivel_css,
+                'nivel_js' => $nivel_js,
+                'aceptacion'=> 1,
+                'ip_origen'=> 'admin',
+                'created_at' => $created_at,
+            )
+        );
+
     }
   
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<hr>';
     echo'<form action="" method="post">
     <input type="text" ';
-    if(isset($_POST["nombre"])){
+    if(isset($_POST["nombre_buscar"])){
         echo "value=".$nombre;
     }
-     echo ' required name="nombre" id="" placeholder="Nombre de usuario">
+     echo ' required name="nombre_buscar" id="" placeholder="Nombre de usuario">
     <input type="submit" value="Buscar">
     </form>';
     echo '<hr>';
     echo '<table class="wp-list-table widefat fixed striped">';
-    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th>
+    echo '<thead><tr><th width="10%">Nombre</th><th width="20%">Correo</th>
         <th>HTML</th><th>CSS</th><th>JS</th>
-        <th>PHP</th><th>WP</th><th>Total</th></tr></thead>';
+        <th>PHP</th><th>WP</th><th>Total</th><th width="15%">Ip Origen</th><th>OP</th></tr></thead>';
     echo '<tbody id="the-list">';
     $aspirantes = $wpdb->get_results($consulta);
     foreach ( $aspirantes as $aspirante ) {
+        $id=(int)$aspirante ->id;
         $nombre = esc_textarea($aspirante->nombre);
         $correo = esc_textarea($aspirante->correo);
         $motivacion = esc_textarea($aspirante->motivacion);
@@ -280,13 +306,63 @@ function formulario_Aspirante_admin()
         $nivel_js = (int)$aspirante->nivel_js;
         $nivel_php = (int)$aspirante->nivel_php;
         $nivel_wp = (int)$aspirante->nivel_wp;
+        $ip_origen= ($aspirante->ip_origen);
         $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
         echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
             <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
             <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>
-            <td>$total</td></tr>";
+           <td>$total</td> <td>$ip_origen</td><<td><a href='?page=formulario_aspirante_menu&id=$id'<span class='dashicons dashicons-trash'></span></a></td></tr>";
+    
     }
     
     echo '</tbody></table></div>';
-   
+    echo '<hr>';
+    echo '<form action="" method="post" id="form_aspirante"
+    class="cuestionario">
+    
+    
+            <div class="form-input">
+                <label for="nombre">Nombre</label>
+                <input type="text" name="nombre" id="nombre" required>
+            </div>
+            <div class="form-input">
+                <label for="correo">Correo</label>
+                <input type="email" name="correo" id="correo" required>
+            </div>
+            <div class="form-input">
+                <label for="nivel_html">¿Cuál es tu nivel de HTML?</label>
+                <input type="radio" name="nivel_html" value="1" required> Nada
+                <br><input type="radio" name="nivel_html" value="2" required> Estoy 
+                    aprendiendo
+                <br><input type="radio" name="nivel_html" value="3" required> Tengo 
+                    experiencia
+                <br><input type="radio" name="nivel_html" value="4" required> Lo 
+                    domino al dedillo
+            </div>
+            <div class="form-input">
+                <label for="nivel_css">¿Cuál es tu nivel de CSS?</label>
+                <input type="radio" name="nivel_css" value="1" required> Nada
+                <br><input type="radio" name="nivel_css" value="2" required> Estoy 
+                    aprendiendo
+                <br><input type="radio" name="nivel_css" value="3" required> Tengo 
+                    experiencia
+                <br><input type="radio" name="nivel_css" value="4" required> Lo 
+                    domino al dedillo
+            </div>
+            <div class="form-input">
+                <label for="nivel_js">¿Cuál es tu nivel de JavaScript?</label>
+                <input type="radio" name="nivel_js" value="1" required> Nada
+                <br><input type="radio" name="nivel_js" value="2" required> Estoy 
+                    aprendiendo
+                <br><input type="radio" name="nivel_js" value="3" required> Tengo 
+                    experiencia
+                <br><input type="radio" name="nivel_js" value="4" required> Lo domino 
+    al dedillo
+            
+            <div class="form-input">
+                <input type="submit" id="btnformulario" value="Guardar" >
+            </div>
+        </form>';
+
+    
 }
