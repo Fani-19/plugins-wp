@@ -5,7 +5,7 @@
 
 
 form.cuestionario {
-    width: 600px;
+    max-width: 600px;
 }
 form.cuestionario label {
     font-weight: bold;

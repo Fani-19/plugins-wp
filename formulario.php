@@ -1,6 +1,6 @@
 <?php
 /**
-* Plugin Name: KFP Form Autoevaluacion
+* Plugin Name: Formulario Autoevaluacion
 Plugin URI: https://autoevaluacion.com/
 Description: formulario autoevaluacion
 Version:1.0
@@ -221,4 +221,72 @@ $('#privacidad').click((e)=>{
      
     // Devuelve el contenido del buffer de salida
     return ob_get_clean();
+}
+// El hook "admin_menu" permite agregar un nuevo item al menú de administración
+add_action("admin_menu", "formulario_Aspirante_menu");
+ 
+/**
+ * Agrega el menú del plugin al escritorio de WordPress
+ *
+ * @return void
+ */
+function formulario_Aspirante_menu() 
+{
+    add_menu_page(
+        'Formulario Aspirantes', 'Aspirantes', 'manage_options', 
+        'formulario_aspirante_menu', 'formulario_Aspirante_admin', 'dashicons-welcome-learn-more', 75
+    );
+}
+/**
+ * Crea el contenido del panel de administración para el plugin
+ *
+ * @return void
+ */
+function formulario_Aspirante_admin()
+{
+    global $wpdb;
+    $tabla_aspirantes = $wpdb->prefix . 'aspirante';
+    $consulta = "SELECT * FROM $tabla_aspirantes";
+    if(isset($_POST["nombre"])){
+        echo "Recibiendo datos";
+        $nombre= $_POST["nombre"];
+        $consulta= "SELECT * FROM $tabla_aspirantes where nombre like '%$nombre%'";
+      
+    }
+  
+    echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
+    echo '<hr>';
+    echo'<form action="" method="post">
+    <input type="text" ';
+    if(isset($_POST["nombre"])){
+        echo "value=".$nombre;
+    }
+     echo ' required name="nombre" id="" placeholder="Nombre de usuario">
+    <input type="submit" value="Buscar">
+    </form>';
+    echo '<hr>';
+    echo '<table class="wp-list-table widefat fixed striped">';
+    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th>
+        <th>HTML</th><th>CSS</th><th>JS</th>
+        <th>PHP</th><th>WP</th><th>Total</th></tr></thead>';
+    echo '<tbody id="the-list">';
+    $aspirantes = $wpdb->get_results($consulta);
+    foreach ( $aspirantes as $aspirante ) {
+        $nombre = esc_textarea($aspirante->nombre);
+        $correo = esc_textarea($aspirante->correo);
+        $motivacion = esc_textarea($aspirante->motivacion);
+        $nivel_html = (int)$aspirante->nivel_html;
+        $nivel_css = (int)$aspirante->nivel_css;
+        $nivel_js = (int)$aspirante->nivel_js;
+        $nivel_php = (int)$aspirante->nivel_php;
+        $nivel_wp = (int)$aspirante->nivel_wp;
+        $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
+        echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
+            <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
+            <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>
+            <td>$total</td></tr>";
+    }
+    
+    echo '</tbody></table></div>';
+   
 }
