@@ -278,7 +278,11 @@ function formulario_Aspirante_admin()
         );
 
     }
-  
+    if(isset($_GET["id"])){
+        $id_aspirante=$_GET["id"];
+        $consulta_borrar=" DELETE from $tabla_aspirantes where id='$id_aspirante'";
+        $aspirantes = $wpdb->get_results($consulta_borrar);
+    }
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<hr>';
     echo'<form action="" method="post">
@@ -312,7 +316,7 @@ function formulario_Aspirante_admin()
             <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
             <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>
            <td>$total</td> <td>$ip_origen</td><<td><a href='?page=formulario_aspirante_menu&id=$id'<span class='dashicons dashicons-trash'></span></a></td></tr>";
-    
+  
     }
     
     echo '</tbody></table></div>';
